@@ -237,7 +237,8 @@ export interface UgcAdRequest {
   creator: "skincare" | "lifestyle" | "fitness" | "tech";
   scene: "home" | "kitchen" | "cafe" | "desk";
   singleClip?: boolean;
-  mode?: "i2v" | "r2v";
+  /** Reference-to-video is the only UGC ad mode. Omit it or set "r2v". */
+  mode?: "r2v";
   durationSec?: 15 | 30 | 45 | 60;
   resolution?: "480p" | "720p" | "1080p";
   aspectRatio?: "9:16" | "16:9" | "1:1";
@@ -331,7 +332,8 @@ export interface RenderCreditsRequest {
 export interface ImageAdCreditsRequest { kind: "image-ad"; templateId: string; sizeId?: string }
 export interface UgcAdCreditsRequest {
   kind: "ugc-ad";
-  mode?: "i2v" | "r2v";
+  /** Reference-to-video is the only UGC ad mode. Omit it or set "r2v". */
+  mode?: "r2v";
   durationSec?: 15 | 30 | 45 | 60;
   resolution?: "480p" | "720p" | "1080p";
   singleClip?: boolean;

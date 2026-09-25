@@ -228,6 +228,22 @@ test("ugcAd.generate requires an idempotency key and sends it", async () => {
   assert.equal(calls[0]!.headers["idempotency-key"], "ugc-1");
 });
 
+test("UGC ad mode is r2v only: the body sends r2v or omits it, never i2v", async () => {
+  const ok = { data: { jobId: JOB_ID, kind: "ugc-ad", creditsCharged: 40, status: "queued", statusUrl: "/api/v1/jobs/x" } };
+  const { reviral, calls } = client([{ status: 202, body: ok }, { status: 202, body: ok }, { status: 200, body: { data: { credits: 40 } } }]);
+  const base = { uploadId: "u1", prompt: "a creator unboxes the mug", angle: "unboxing", creator: "lifestyle", scene: "kitchen" } as const;
+  await reviral.ugcAd.generate({ ...base, mode: "r2v" }, { idempotencyKey: "ugc-r2v" });
+  await reviral.ugcAd.generate(base, { idempotencyKey: "ugc-default" });
+  await reviral.calculateCredits({ kind: "ugc-ad", mode: "r2v", durationSec: 15 });
+  // @ts-expect-error "i2v" is not a UGC ad mode (the API answers 422)
+  const rejected: import("../src/index.js").UgcAdRequest = { ...base, mode: "i2v" };
+  void rejected;
+  assert.equal(JSON.parse(calls[0]!.body!).mode, "r2v");
+  assert.equal("mode" in JSON.parse(calls[1]!.body!), false);
+  assert.equal(JSON.parse(calls[2]!.body!).mode, "r2v");
+  for (const c of calls) assert.doesNotMatch(c.body ?? "", /i2v/);
+});
+
 test("unwraps both {data} and {ok,data} envelopes; builds discover query", async () => {
   const { reviral, calls } = client([
     { status: 200, body: { ok: true, data: { profileId: "p", plan: "pro", credits: 10 }, docs: "/docs/api" } },
