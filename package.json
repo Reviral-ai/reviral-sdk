@@ -1,0 +1,66 @@
+{
+  "name": "@reviral/sdk",
+  "version": "0.1.0",
+  "description": "Official TypeScript client for the Reviral AI video and image generation API: Seedance, Veo 3, Kling, GPT Image, Nano Banana, image ads and UGC ads.",
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "build": "node scripts/clean.mjs dist && tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json && node scripts/cjs-marker.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node scripts/clean.mjs .test-build && tsc -p tsconfig.test.json && node --test .test-build/test/*.test.js",
+    "gen:models": "node scripts/gen-model-table.mjs",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
+  },
+  "keywords": [
+    "ai video api",
+    "seedance api",
+    "veo 3 api",
+    "kling api",
+    "ugc ads api",
+    "image ads api",
+    "ai image api",
+    "sora alternative api",
+    "text to video api",
+    "reviral"
+  ],
+  "homepage": "https://reviral.ai/docs/api",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Reviral-ai/reviral-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Reviral-ai/reviral-sdk/issues",
+    "email": "support@reviral.ai"
+  },
+  "author": "Reviral <support@reviral.ai> (https://reviral.ai)",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,40 @@
+# Reviral SDK (@reviral/sdk)
+
+> Official TypeScript/JavaScript client for the Reviral API: AI video and image generation (Seedance, Google Veo 3, Kling, Hailuo, Wan, GPT Image, Nano Banana, Flux, Seedream), image ads and UGC video ads through one API key. MIT licensed, zero runtime dependencies, Node 20+.
+
+## Quickstart
+
+```ts
+import { Reviral } from "@reviral/sdk";
+const reviral = new Reviral({ apiKey: process.env.REVIRAL_API_KEY });
+const job = await reviral.generateMedia({ model: "gpt-image-2.5-flare", prompt: "A red sneaker on white" });
+const done = await reviral.jobs.waitUntilDone(job.jobId); // status "ready" | "failed"
+```
+
+## Rules the API enforces
+
+- Auth: `Authorization: Bearer <key>` from a server only. Keys are created at https://reviral.ai/app/api-keys.
+- Generation: 10 requests/minute and 1,000/day per key (images, videos and image ads share it). Job status: 120/minute per key.
+- HTTP 429 carries Retry-After. The SDK retries once for 429 and 503 rate_limit_unavailable, never for anything else.
+- Idempotency-Key (1-128 chars) on generate-media, image-ads, ugc-ad (required for ugc-ad). Same key + same body = original job back; different body = 409 idempotency_key_reuse. A replay returns the job's current status.
+- Polling: start near 2 s, back off to 5-10 s, stop at ready or failed. Ready videos may briefly report outputPending.
+- Prices are in credits and live: GET /api/v1/models, GET /api/v1/credit-costs. maxCredits is an exact-match price lock (409 price_changed), not a ceiling.
+- Errors: { error: { code, message, details? }, docs }. The SDK throws ReviralError { status, code, message, retryAfterSec, idempotencyKey }.
+
+## Main methods
+
+- models.list(), creditCosts.get(), calculateCredits()
+- generateMedia(body, { idempotencyKey }), jobs.get(id), jobs.waitUntilDone(id)
+- uploads.create(), uploads.sign(), uploads.put(), uploads.verify()
+- imageAds.templates(), imageAds.generate(), ugcAd.options(), ugcAd.generate()
+- render(), stitch(), director.chat(), writers.script(), writers.hooks(), writers.promptBuilder()
+- me(), characters.*, discover(), mediaSearch(), parseWebhook()
+
+## Links
+
+- README: ./README.md
+- API docs: https://reviral.ai/docs/api
+- OpenAPI contract: https://reviral.ai/openapi.json
+- Models and prices: https://reviral.ai/api/v1/models
+- Rate limits: https://reviral.ai/docs/api/rate-limits
+- Idempotency: https://reviral.ai/docs/api/idempotency
